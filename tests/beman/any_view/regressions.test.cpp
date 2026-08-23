@@ -2,6 +2,7 @@
 
 #include "detail/self_ref_input_view.hpp"
 #include "detail/throwing_forward_view.hpp"
+#include "detail/self_ref_forward_proxy_view.hpp"
 
 #include <gtest/gtest.h>
 
@@ -34,6 +35,60 @@ TEST(RegressionTest, move_assigning_input_iterator_rebinds_dereference) {
     destination = std::move(source);
 
     EXPECT_EQ(*destination, 42);
+}
+
+using proxy_forward_any_view = any_view<int, forward, self_ref_forward_proxy, int>;
+
+// GH-85
+TEST(RegressionTest, copying_forward_proxy_iterator_preserves_position) {
+    proxy_forward_any_view view{self_ref_forward_proxy_view{42, 44}};
+
+    auto source = view.begin();
+    auto copied = source;
+
+    ++source;
+
+    // The copied underlying iterator remains at 42.
+    // A copied cache incorrectly points into source and returns 43.
+    EXPECT_EQ(static_cast<int>(*copied), 42);
+}
+
+// GH-85
+TEST(RegressionTest, moving_forward_proxy_iterator_preserves_position) {
+    proxy_forward_any_view view{self_ref_forward_proxy_view{42, 44}};
+
+    auto source = view.begin();
+    auto moved  = std::move(source);
+
+    // A stale cache points into moved-from source and returns -777.
+    EXPECT_EQ(static_cast<int>(*moved), 42);
+}
+
+// GH-85
+TEST(RegressionTest, copy_assigning_forward_proxy_iterator_preserves_position) {
+    proxy_forward_any_view view{self_ref_forward_proxy_view{42, 44}};
+
+    auto source      = view.begin();
+    auto destination = view.begin();
+    ++destination;
+
+    destination = source;
+    ++source;
+
+    EXPECT_EQ(static_cast<int>(*destination), 42);
+}
+
+// GH-85
+TEST(RegressionTest, move_assigning_forward_proxy_iterator_preserves_position) {
+    proxy_forward_any_view view{self_ref_forward_proxy_view{42, 44}};
+
+    auto source      = view.begin();
+    auto destination = view.begin();
+    ++destination;
+
+    destination = std::move(source);
+
+    EXPECT_EQ(static_cast<int>(*destination), 42);
 }
 
 // GH-86

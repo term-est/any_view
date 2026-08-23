@@ -55,7 +55,8 @@ class iterator : public iterator_category_type<iterator_concept_t<OptsV>, std::i
     static constexpr bool random_access = flag_is_set<OptsV, any_view_options::random_access>;
     static constexpr bool contiguous    = flag_is_set<OptsV, any_view_options::contiguous>;
 
-    using cache_type       = std::conditional_t<forward && convertible_to_borrowed<rvalue_ref_t<RefT>, RValueRefT>,
+    using cache_type       = std::conditional_t<forward && std::is_lvalue_reference_v<RefT> &&
+                                                    convertible_to_borrowed<rvalue_ref_t<RefT>, RValueRefT>,
                                                 iter_cache_t<RefT>,
                                                 no_cache>;
     using polymorphic_type = polymorphic_iterator<RefT, RValueRefT, DiffT, OptsV>;
