@@ -244,21 +244,26 @@ template <class T>
 using rvalue_ref_t = typename rvalue_ref<T>::type;
 
 template <class RefT, class RValueRefT>
-struct input_cache_protocol : inherit<dereference_t<RefT>, iter_move_t<RValueRefT>, increment_t> {};
-
-template <has_cache RefT, class RValueRefT>
-    requires convertible_to_borrowed<rvalue_ref_t<RefT>, RValueRefT>
-struct input_cache_protocol<RefT, RValueRefT> : inherit<cache_t<RefT>, next_t<RefT>> {};
-
-template <class RefT, class RValueRefT>
 struct input_protocol : inherit<move_t<iterator_storage>,
                                 destroy_t<iterator_storage>,
-                                input_cache_protocol<RefT, RValueRefT>,
+                                dereference_t<RefT>,
+                                iter_move_t<RValueRefT>,
+                                increment_t,
                                 sentinel_compare_t> {};
 
 template <class RefT, class RValueRefT>
-struct forward_protocol
-    : inherit<input_protocol<RefT, RValueRefT>, copy_t<iterator_storage>, type_t, equality_compare_t> {};
+struct forward_cache_protocol : inherit<> {};
+
+template <has_cache RefT, class RValueRefT>
+    requires convertible_to_borrowed<rvalue_ref_t<RefT>, RValueRefT>
+struct forward_cache_protocol<RefT, RValueRefT> : inherit<cache_t<RefT>, next_t<RefT>> {};
+
+template <class RefT, class RValueRefT>
+struct forward_protocol : inherit<input_protocol<RefT, RValueRefT>,
+                                  copy_t<iterator_storage>,
+                                  forward_cache_protocol<RefT, RValueRefT>,
+                                  type_t,
+                                  equality_compare_t> {};
 
 template <class RefT>
 struct bidirectional_cache_protocol : inherit<decrement_t> {};

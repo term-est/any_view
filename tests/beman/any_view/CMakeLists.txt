@@ -48,4 +48,4 @@ endfunction()
 beman_add_benchmark(all ${BENCHMARK_DETAIL_SOURCES})
 beman_add_benchmark(take ${BENCHMARK_DETAIL_SOURCES})
 
-beman_add_tests(concepts constexpr iterator sfinae type_traits)
+beman_add_tests(concepts constexpr iterator sfinae type_traits regressions)

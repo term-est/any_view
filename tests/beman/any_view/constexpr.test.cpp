@@ -76,9 +76,9 @@ template <class T>
 non_trivially_copyable<T>::non_trivially_copyable(const non_trivially_copyable&) = default;
 
 constexpr auto set_front(any_view<int, forward> view, int value) {
-    // lvalue reference uses cache object to fuse virtual dispatches
-    static_assert(sizeof(std::ranges::iterator_t<any_view<int>>) ==
-                  sizeof(std::ranges::iterator_t<proxy_any_view<non_trivially_copyable<int>>>) + sizeof(int*));
+    // Only forward and stronger iterators cache lvalue references.
+    static_assert(sizeof(std::ranges::iterator_t<any_view<int, forward>>) ==
+                  sizeof(std::ranges::iterator_t<any_view<int>>) + sizeof(int*));
 
     auto& ref = view.front();
     // even with cache object, lifetime of reference is not tied to lifetime of iterator
