@@ -51,46 +51,37 @@ class basic_polymorphic {
     constexpr ~basic_polymorphic() { entry(destroy_t<StorageT>{})(storage); }
 
     constexpr basic_polymorphic& operator=(const basic_polymorphic& other) {
-        if (this == std::addressof(other)) {
-            return *this;
+        if (this != std::addressof(other)) {
+            *this = basic_polymorphic(other);
         }
 
-        std::destroy_at(this);
-        std::construct_at(this, other);
         return *this;
     }
 
     constexpr basic_polymorphic& operator=(basic_polymorphic&& other) noexcept {
-        if (this == std::addressof(other)) {
-            return *this;
+        if (this != std::addressof(other)) {
+            std::destroy_at(this);
+            std::construct_at(this, std::move(other));
         }
 
-        std::destroy_at(this);
-        std::construct_at(this, std::move(other));
         return *this;
     }
 
     template <adaptor AdaptorT>
     constexpr basic_polymorphic& operator=(AdaptorT&& adaptor) {
-        std::destroy_at(this);
-        std::construct_at(this, std::forward<AdaptorT>(adaptor));
-        return *this;
+        return *this = basic_polymorphic(std::forward<AdaptorT>(adaptor));
     }
 
     // converting assignment
 
     template <std::derived_from<ProtocolTs>... OtherProtocolTs>
     constexpr basic_polymorphic& operator=(const basic_polymorphic<StorageT, OtherProtocolTs...>& other) {
-        std::destroy_at(this);
-        std::construct_at(this, other);
-        return *this;
+        return *this = basic_polymorphic(other);
     }
 
     template <std::derived_from<ProtocolTs>... OtherProtocolTs>
     constexpr basic_polymorphic& operator=(basic_polymorphic<StorageT, OtherProtocolTs...>&& other) noexcept {
-        std::destroy_at(this);
-        std::construct_at(this, std::move(other));
-        return *this;
+        return *this = basic_polymorphic(std::move(other));
     }
 
     constexpr StorageT&       get() & noexcept { return storage; }
