@@ -26,23 +26,18 @@ struct self_ref_forward_proxy_iterator {
 
     self_ref_forward_proxy_iterator() = default;
 
-    self_ref_forward_proxy_iterator(int value, int stop)
-        : value(value), stop(stop) {}
+    self_ref_forward_proxy_iterator(int value, int stop) : value(value), stop(stop) {}
 
-    self_ref_forward_proxy_iterator(
-        const self_ref_forward_proxy_iterator&) = default;
+    self_ref_forward_proxy_iterator(const self_ref_forward_proxy_iterator&) = default;
 
-    self_ref_forward_proxy_iterator&
-    operator=(const self_ref_forward_proxy_iterator&) = default;
+    self_ref_forward_proxy_iterator& operator=(const self_ref_forward_proxy_iterator&) = default;
 
-    self_ref_forward_proxy_iterator(
-        self_ref_forward_proxy_iterator&& other) noexcept
+    self_ref_forward_proxy_iterator(self_ref_forward_proxy_iterator&& other) noexcept
         : value(other.value), stop(other.stop) {
         other.value = -777;
     }
 
-    self_ref_forward_proxy_iterator&
-    operator=(self_ref_forward_proxy_iterator&& other) noexcept {
+    self_ref_forward_proxy_iterator& operator=(self_ref_forward_proxy_iterator&& other) noexcept {
         value = other.value;
         stop  = other.stop;
 
@@ -66,14 +61,10 @@ struct self_ref_forward_proxy_iterator {
         return previous;
     }
 
-    friend bool operator==(
-        const self_ref_forward_proxy_iterator&,
-        const self_ref_forward_proxy_iterator&) = default;
+    friend bool operator==(const self_ref_forward_proxy_iterator&, const self_ref_forward_proxy_iterator&) = default;
 };
 
-static_assert(
-    std::forward_iterator<self_ref_forward_proxy_iterator>
-);
+static_assert(std::forward_iterator<self_ref_forward_proxy_iterator>);
 
 struct self_ref_forward_proxy_view : std::ranges::view_base {
     int first{};
@@ -81,18 +72,11 @@ struct self_ref_forward_proxy_view : std::ranges::view_base {
 
     self_ref_forward_proxy_view() = default;
 
-    self_ref_forward_proxy_view(int first, int stop)
-        : first(first), stop(stop) {}
+    self_ref_forward_proxy_view(int first, int stop) : first(first), stop(stop) {}
 
-    self_ref_forward_proxy_iterator begin() const noexcept {
-        return {first, stop};
-    }
+    self_ref_forward_proxy_iterator begin() const noexcept { return {first, stop}; }
 
-    self_ref_forward_proxy_iterator end() const noexcept {
-        return {stop, stop};
-    }
+    self_ref_forward_proxy_iterator end() const noexcept { return {stop, stop}; }
 };
 
-static_assert(
-    std::ranges::forward_range<self_ref_forward_proxy_view>
-);
+static_assert(std::ranges::forward_range<self_ref_forward_proxy_view>);

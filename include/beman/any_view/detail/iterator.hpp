@@ -264,9 +264,10 @@ class iterator : public iterator_category_type<iterator_concept_t<OptsV>, std::i
     }
 
     [[nodiscard]] constexpr bool operator==(std::default_sentinel_t) const {
-        // sentinel comparison must dispatch for a contiguous iterator
         if constexpr (has_cache and not contiguous) {
             return cache_or_index == cache_type{};
+        } else if constexpr (has_index) {
+            return dispatch<sentinel_compare_at_t<DiffT>>(poly, cache_or_index);
         } else {
             return dispatch<sentinel_compare_t>(poly);
         }

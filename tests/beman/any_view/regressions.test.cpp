@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 
-#include <string>
+#include <vector>
 
 using beman::any_view::any_view;
 using enum beman::any_view::any_view_options;
@@ -127,4 +127,18 @@ TEST(RegressionTest, copy_assigning_forward_iterator_is_exception_safe) {
     }
 
     EXPECT_EQ(throwing_forward_iterator::live_count, 0);
+}
+
+TEST(RegressionTest, random_access_proxy_iterator_reaches_end) {
+    std::vector<bool> values{true, false, true};
+    using proxy = std::ranges::range_reference_t<decltype(values)>;
+
+    any_view<bool, random_access, proxy> view{values};
+
+    auto iterator = view.begin();
+    ++iterator;
+    ++iterator;
+    ++iterator;
+
+    EXPECT_EQ(iterator, view.end());
 }

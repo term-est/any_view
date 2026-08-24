@@ -48,6 +48,17 @@ struct sentinel_compare_t : unary_protocol {
     }
 };
 
+template <class DiffT>
+struct sentinel_compare_at_t : unary_protocol {
+    template <not_adaptor T>
+    static bool fn(const T& self, DiffT offset);
+
+    template <adaptor IteratorAdaptorT>
+    [[nodiscard]] static constexpr bool fn(const IteratorAdaptorT& adaptor, DiffT offset) {
+        return adaptor.iterator + offset == adaptor.sentinel;
+    }
+};
+
 template <class RefT>
 struct dereference_t : unary_protocol {
     template <not_adaptor T>
@@ -283,6 +294,7 @@ struct random_access_cache_protocol<RefT, RValueRefT, DiffT> : inherit<advance_t
 template <class RefT, class RValueRefT, class DiffT>
 struct random_access_protocol : inherit<bidirectional_protocol<RefT, RValueRefT>,
                                         random_access_cache_protocol<RefT, RValueRefT, DiffT>,
+                                        sentinel_compare_at_t<DiffT>,
                                         three_way_compare_t,
                                         subtract_t<DiffT>> {};
 
